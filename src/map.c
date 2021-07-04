@@ -25,13 +25,15 @@ bool vectors_eq(Vector x, Vector y)
 Snake create_snake(int x, int y, int max_parts) {
   Snake snake;
 
+  snake.pos = (Coordinate){x, y};
+  
   snake.length = 1;
   snake.pending_length = INITIAL_LENGTH - 1;
 
   snake.parts = calloc(max_parts, sizeof(SnakePart) * MAX_CELLS);
-  SnakePart head = {{x, y}, HEAD};
+
+  SnakePart head = {snake.pos, HEAD};
   snake.parts[0] = head;
-  snake.pos = head.pos;
 
   return snake;
 }
@@ -149,7 +151,6 @@ void read_map_file(Map* map, const char* filename) {
     int max_y = y;
     map->size_x = max_x;
     map->size_y = max_y;
-    printf("size: %d %d\n", max_x, max_y);
     
     MapCellsStates map_cells = generate_map_cells(max_x, max_y);
     int state;
@@ -196,7 +197,7 @@ void redraw_snake(Map* map) {
       for (int snake_part_index = 0; snake_part_index < snake->length; snake_part_index++)
       {
         SnakePart part = snake->parts[snake_part_index];
-        printf("%d (%d, %d) %d\n", snake_part_index, part.pos.x, part.pos.y, part.state);
+        // printf("(%d, %d) %d\n", part.pos.x, part.pos.y, part.state);
         if (vectors_eq(part.pos, pos))
         {
           set_cell_state(map, pos, part.state);
@@ -216,20 +217,13 @@ void update_map(Map* map, Vector direction) {
 
   bool grow = snake->pending_length > 0;
 
-  int len = snake->length + 1;
-  int count = 1;
 
-  MapCell cells_to_update[len];
-  memcpy(cells_to_update + 1, snake->parts, sizeof(MapCell) * snake->length);
-  cells_to_update[0] = get_cell(map, new_pos);
+  MapCell* cells_to_update = snake->parts;
 
-
-
-  MapCell c;
-  for (int i = 0; i < len; i++)
+  for (int i = snake->length-1; i > -1; i--)
   {
-    c = cells_to_update[i];
-    printf("%d) POS: (%d, %d), STATE: %d\n", i, c.pos.x, c.pos.y, c.state);
+    Coordinate next_pos = (i == 0) ? new_pos : cells_to_update[i-1].pos;
+    cells_to_update[i].pos = next_pos;
   }
   
   MapCellState tail_state;
@@ -240,7 +234,10 @@ void update_map(Map* map, Vector direction) {
     tail_state = FREE;
   }
 
-  snake->pos = new_pos;
+  // TODO: when everything will work, try this:
+  // snake->pos = new_pos;
+  snake->pos.x = new_pos.x;
+  snake->pos.y = new_pos.y;
 
   if (grow)
   {
