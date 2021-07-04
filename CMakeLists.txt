@@ -1,4 +1,4 @@
-project(Test C)
+project(Snake)
 cmake_minimum_required(VERSION 3.9)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wall -g -Linclude")
