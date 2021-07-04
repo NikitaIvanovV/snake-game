@@ -14,3 +14,5 @@ target_link_libraries(main utils)
 target_link_libraries(main map)
 target_link_libraries(main render)
 target_link_libraries(main SDL2)
+
+target_link_libraries(map utils)

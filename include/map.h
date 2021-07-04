@@ -41,6 +41,7 @@ typedef MapCellState** MapCellsStates;
 
 typedef struct {
   Vector size;
+  int cells_length;
   MapCellsStates cells;
   Snake snake;
 } Map;
@@ -54,7 +55,5 @@ MoveResult move_right(Map*);
 MoveResult move_down(Map*);
 
 MoveResult move_left(Map*);
-
-void snake_grow(Snake*);
 
 #endif

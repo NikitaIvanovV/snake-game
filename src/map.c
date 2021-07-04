@@ -52,6 +52,27 @@ MapCell get_cell(Map* map, Coordinate coord) {
   return cell;
 }
 
+int get_free_cells(Map* map, MapCell* free_cells)
+{
+  int free_cells_length = 0;
+
+  for (int x = 0; x < map->size.x; x++)
+  {
+    for (int y = 0; y < map->size.y; y++)
+    { 
+      Coordinate pos = {x, y};
+      MapCellState state = get_cell_state(map, pos);
+      if (state == FREE)
+      {
+        MapCell free_cell = {pos, state};
+        free_cells[free_cells_length++] = free_cell;
+      }
+    }
+  }
+
+  return free_cells_length;
+}
+
 bool is_snake_state(MapCellState state)
 {
   return ((state == HEAD) || (state == BODY));
@@ -152,6 +173,7 @@ void read_map_file(Map* map, const char* filename) {
     int max_y = y;
     map->size.x = max_x;
     map->size.y = max_y;
+    map->cells_length = max_x * max_y;
     
     MapCellsStates map_cells = generate_map_cells(max_x, max_y);
     int state;
@@ -172,7 +194,7 @@ void read_map_file(Map* map, const char* filename) {
     }
 
     map->cells = map_cells;
-    map->snake = create_snake(snake_x, snake_y, max_x*max_y);
+    map->snake = create_snake(snake_x, snake_y, map->cells_length);
 
   } else {
     printf("File not found: \"%s\"\n", filename);
@@ -211,17 +233,14 @@ void redraw_snake(Map* map) {
   
 }
 
-void update_map(Map* map, Vector direction) {
+void update_map(Map* map, Coordinate new_pos) {
   Snake *snake = &(map->snake);
-
-  Coordinate new_pos = vectors_sum(snake->pos, direction);
 
   bool grow = snake->pending_length > 0;
 
-
   MapCell* cells_to_update = snake->parts;
 
-  for (int i = snake->length-1; i > -1; i--)
+  for (int i = snake->length-1; i >= 0; i--)
   {
     Coordinate next_pos = (i == 0) ? new_pos : cells_to_update[i-1].pos;
     cells_to_update[i].pos = next_pos;
@@ -235,10 +254,7 @@ void update_map(Map* map, Vector direction) {
     tail_state = FREE;
   }
 
-  // TODO: when everything will work, try this:
-  // snake->pos = new_pos;
-  snake->pos.x = new_pos.x;
-  snake->pos.y = new_pos.y;
+  snake->pos = snake->parts[0].pos;
 
   if (grow)
   {
@@ -247,6 +263,24 @@ void update_map(Map* map, Vector direction) {
   }
 
   redraw_snake(map);
+}
+
+void grow_snake(Snake *snake)
+{
+  snake->pending_length += GROWTH_PER_APPLE;
+}
+
+void spawn_apple(Map *map)
+{
+  MapCell free_cells[map->cells_length];
+  int free_cells_length = get_free_cells(map, free_cells);
+
+  MapCell random_cell;
+  int random_cell_index = rand_range(0, free_cells_length);
+  random_cell = free_cells[random_cell_index];
+
+  set_cell_state(map, random_cell.pos, APPLE);
+  printf("%d\n", rand_range(0, free_cells_length));
 }
 
 MoveResult move(Map* map, int dx, int dy) {
@@ -272,7 +306,8 @@ MoveResult move(Map* map, int dx, int dy) {
     case APPLE:
       result = EATEN;
       set_cell_state(map, new_pos, FREE);
-      snake_grow(&map->snake);
+      grow_snake(snake);
+      spawn_apple(map);
       break;
     case WALL:
     case HEAD:
@@ -283,7 +318,7 @@ MoveResult move(Map* map, int dx, int dy) {
   
   printf("Length: %d; Pending length: %d\n", snake->length, snake->pending_length);
   printf("Snake pos: (%d, %d)\n", snake->pos.x, snake->pos.y);
-  update_map(map, direction);
+  update_map(map, new_pos);
   
   return result;
 }
@@ -302,8 +337,4 @@ MoveResult move_down(Map* map) {
 
 MoveResult move_left(Map* map) {
   return move(map, -1, 0);
-}
-
-void snake_grow(Snake* snake) {
-  snake->pending_length += GROWTH_PER_APPLE;
 }
