@@ -55,4 +55,6 @@ MoveResult move_down(Map*);
 
 MoveResult move_left(Map*);
 
+void snake_grow(Snake*);
+
 #endif

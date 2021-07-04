@@ -8,6 +8,7 @@
 
 #define MAX_CELLS (100*100)
 #define INITIAL_LENGTH 3
+#define GROWTH_PER_APPLE 1
 
 static int cell_count;
 
@@ -262,6 +263,7 @@ MoveResult move(Map* map, int dx, int dy) {
   Coordinate new_pos = vectors_sum(pos, direction);
   
   MapCellState new_cell = get_cell_state(map, new_pos);
+
   MoveResult result;
   switch (new_cell) {
     case FREE:
@@ -269,6 +271,8 @@ MoveResult move(Map* map, int dx, int dy) {
       break;
     case APPLE:
       result = EATEN;
+      set_cell_state(map, new_pos, FREE);
+      snake_grow(&map->snake);
       break;
     case WALL:
     case HEAD:
@@ -277,14 +281,11 @@ MoveResult move(Map* map, int dx, int dy) {
       break;
   }
   
-  if (result == DIED) {
-    return result;
-  }
-  
   printf("Length: %d; Pending length: %d\n", snake->length, snake->pending_length);
   printf("Snake pos: (%d, %d)\n", snake->pos.x, snake->pos.y);
   update_map(map, direction);
   
+  return result;
 }
 
 MoveResult move_up(Map* map) {
@@ -301,4 +302,8 @@ MoveResult move_down(Map* map) {
 
 MoveResult move_left(Map* map) {
   return move(map, -1, 0);
+}
+
+void snake_grow(Snake* snake) {
+  snake->pending_length += GROWTH_PER_APPLE;
 }
