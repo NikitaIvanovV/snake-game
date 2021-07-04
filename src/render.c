@@ -83,7 +83,10 @@ void render_map(View* view) {
           set_color(view, 255, 65, 0);
           break;
         case BODY:
-          set_color(view, 255, 165, 00);
+          set_color(view, 255, 200, 00);
+          break;
+        case BODY2:
+          set_color(view, 255, 160, 00);
           break;
         case APPLE:
           set_color(view, 255, 0, 0);

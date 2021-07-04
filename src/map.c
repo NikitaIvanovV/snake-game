@@ -75,7 +75,7 @@ int get_free_cells(Map* map, MapCell* free_cells)
 
 bool is_snake_state(MapCellState state)
 {
-  return ((state == HEAD) || (state == BODY));
+  return ((state == HEAD) || (state == BODY) || (state == BODY2));
 }
 
 bool is_snake_in_cell(Map *map, Coordinate coord)
@@ -84,8 +84,8 @@ bool is_snake_in_cell(Map *map, Coordinate coord)
   return is_snake_state(cell_state);
 }
 
-SnakePart make_snake_part(Coordinate coord) {
-  SnakePart part = {coord, BODY};
+SnakePart make_snake_part(Coordinate coord, int length) {
+  SnakePart part = {coord, ((length%2) == 0) ? BODY : BODY2};
   return part;
 }
 
@@ -248,10 +248,7 @@ void update_map(Map* map, Coordinate new_pos) {
   
   MapCellState tail_state;
   if (grow) {
-    tail_state = BODY;
-    snake->parts[snake->length] = make_snake_part(snake->pos);
-  } else {
-    tail_state = FREE;
+    snake->parts[snake->length] = make_snake_part(snake->pos, snake->length);
   }
 
   snake->pos = snake->parts[0].pos;
@@ -312,6 +309,7 @@ MoveResult move(Map* map, int dx, int dy) {
     case WALL:
     case HEAD:
     case BODY:
+    case BODY2:
       result = DIED;
       break;
   }

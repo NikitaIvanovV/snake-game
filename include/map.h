@@ -14,6 +14,7 @@ typedef enum {
   WALL,
   HEAD,
   BODY,
+  BODY2,
   APPLE
 } MapCellState;
 
