@@ -31,7 +31,7 @@ Snake create_snake(int x, int y, int max_parts) {
   snake.length = 1;
   snake.pending_length = INITIAL_LENGTH - 1;
 
-  snake.parts = calloc(max_parts, sizeof(SnakePart) * MAX_CELLS);
+  snake.parts = calloc(max_parts, sizeof(SnakePart));
 
   SnakePart head = {snake.pos, HEAD};
   snake.parts[0] = head;
