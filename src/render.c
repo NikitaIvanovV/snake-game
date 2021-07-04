@@ -65,11 +65,11 @@ void draw_rect(View* view, int x, int y, int w, int h) {
 void render_map(View* view) {
   Map* map = view->map;
   
-  int scale = (map->size_x < map->size_y) ? SDL_SCREEN_HEIGHT / map->size_y : SDL_SCREEN_WIDTH / map->size_x;
+  int scale = (map->size.x < map->size.y) ? SDL_SCREEN_HEIGHT / map->size.y : SDL_SCREEN_WIDTH / map->size.x;
   
   MapCellState state;
-  for (int y = 0; y < map->size_y; y++) {
-    for (int x = 0; x < map->size_x; x++) {
+  for (int y = 0; y < map->size.y; y++) {
+    for (int x = 0; x < map->size.x; x++) {
 
       state = map->cells[x][y];
       switch (state) {

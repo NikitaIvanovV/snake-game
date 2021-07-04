@@ -26,8 +26,8 @@
 Map map;
 
 void draw_map_t(Map* map) {
-  for (size_t y = 0; y < map->size_y; y++) {
-    for (size_t x = 0; x < map->size_x; x++) {
+  for (size_t y = 0; y < map->size.y; y++) {
+    for (size_t x = 0; x < map->size.x; x++) {
       printf("%d", map->cells[x][y]);
     }
     printf("\n");

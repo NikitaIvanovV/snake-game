@@ -149,8 +149,8 @@ void read_map_file(Map* map, const char* filename) {
     }
     
     int max_y = y;
-    map->size_x = max_x;
-    map->size_y = max_y;
+    map->size.x = max_x;
+    map->size.y = max_y;
     
     MapCellsStates map_cells = generate_map_cells(max_x, max_y);
     int state;
@@ -182,9 +182,9 @@ void read_map_file(Map* map, const char* filename) {
 void redraw_snake(Map* map) {
   Snake* snake = &(map->snake);
 
-  for (int x = 0; x < map->size_x; x++)
+  for (int x = 0; x < map->size.x; x++)
   {
-    for (int y = 0; y < map->size_x; y++)
+    for (int y = 0; y < map->size.x; y++)
     {
       Coordinate pos = {x, y};
       MapCellState cell_state = get_cell_state(map, pos);

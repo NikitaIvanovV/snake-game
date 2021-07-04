@@ -40,8 +40,7 @@ typedef struct {
 typedef MapCellState** MapCellsStates;
 
 typedef struct {
-  int size_x;
-  int size_y;
+  Vector size;
   MapCellsStates cells;
   Snake snake;
 } Map;
