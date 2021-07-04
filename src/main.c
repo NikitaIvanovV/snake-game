@@ -63,7 +63,7 @@ int main(int argc, char const *argv[]) {
       }
 
       if (e.type == SDL_KEYDOWN) {
-        draw_map_t(&map);
+        
         switch (e.key.keysym.sym) {
           case SDLK_UP:
             mr = move_up(&map);
@@ -81,8 +81,10 @@ int main(int argc, char const *argv[]) {
             restart_game(&map, map_file);
             break;
         }
-        
-        if (mr == DIED) {
+
+        draw_map_t(&map);
+        if (mr == DIED)
+        {
           run = false;
           printf("You died.\nLength: %d\n", map.snake.length);
         }
