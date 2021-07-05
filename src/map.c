@@ -4,7 +4,7 @@
 
 #include "map.h"
 #include "utils.h"
-#include "error.h"
+#include "vector.h"
 
 #define MAX_CELLS (100*100)
 #define INITIAL_LENGTH 3
@@ -12,21 +12,11 @@
 
 static int cell_count;
 
-Vector vectors_sum(Vector x, Vector y)
-{
-  Vector z = {x.x + y.x, x.y - y.y};
-  return z;
-}
-
-bool vectors_eq(Vector x, Vector y)
-{
-  return ((x.x == y.x) && (x.y == y.y));
-}
-
 Snake create_snake(int x, int y, int max_parts) {
   Snake snake;
 
   snake.pos = (Coordinate){x, y};
+  snake.direction = (Vector){0 ,0};
   
   snake.length = 1;
   snake.pending_length = INITIAL_LENGTH - 1;
@@ -221,7 +211,7 @@ void redraw_snake(Map* map) {
       {
         SnakePart part = snake->parts[snake_part_index];
         // printf("(%d, %d) %d\n", part.pos.x, part.pos.y, part.state);
-        if (vectors_eq(part.pos, pos))
+        if (vector_eq(part.pos, pos))
         {
           set_cell_state(map, pos, part.state);
           break;
@@ -280,22 +270,29 @@ void spawn_apple(Map *map)
   printf("%d\n", rand_range(0, free_cells_length));
 }
 
-MoveResult move(Map* map, int dx, int dy) {
-  if (dx * dy != 0) {
+MoveResult move(Map* map, Vector direction) {
+  if (direction.x * direction.y != 0) {
     printf("Error: diagonal movement is not allowed\n");
     exit(1);
   }
 
-  Vector direction = {dx, dy};
-  
+  MoveResult result;
   Snake* snake = &(map->snake);
 
+  // Disallow moving back
+  if (vector_eq(direction, vector_scale(snake->direction, -1)))
+  {
+    result = IGNORED;
+    return result;
+  }
+
+  snake->direction = direction;
+
   Coordinate pos = snake->pos;
-  Coordinate new_pos = vectors_sum(pos, direction);
+  Coordinate new_pos = vector_sum(pos, direction);
   
   MapCellState new_cell = get_cell_state(map, new_pos);
 
-  MoveResult result;
   switch (new_cell) {
     case FREE:
       result = MOVED;
@@ -322,17 +319,17 @@ MoveResult move(Map* map, int dx, int dy) {
 }
 
 MoveResult move_up(Map* map) {
-  return move(map, 0, 1);
+  return move(map, (Vector){0, 1});
 }
 
 MoveResult move_right(Map* map) {
-  return move(map, 1, 0);
+  return move(map, (Vector){1, 0});
 }
 
 MoveResult move_down(Map* map) {
-  return move(map, 0, -1);
+  return move(map, (Vector){0, -1});
 }
 
 MoveResult move_left(Map* map) {
-  return move(map, -1, 0);
+  return move(map, (Vector){-1, 0});
 }

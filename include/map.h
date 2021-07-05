@@ -1,9 +1,12 @@
 #ifndef NIKITA_SG_MAP
 #define NIKITA_SG_MAP
 
+#include "vector.h"
+
 #define DEFAULT_MAP "../map.txt"
 
 typedef enum {
+  IGNORED,
   MOVED,
   EATEN,
   DIED
@@ -18,11 +21,7 @@ typedef enum {
   APPLE
 } MapCellState;
 
-typedef struct {
-  int x, y;
-} Coordinate;
-
-typedef Coordinate Vector;
+typedef Vector Coordinate;
 
 typedef struct {
   Coordinate pos;
@@ -33,9 +32,10 @@ typedef MapCell SnakePart;
 
 typedef struct {
   Coordinate pos;
+  Vector direction;
+  SnakePart* parts;
   int length;
   int pending_length;
-  SnakePart* parts;
 } Snake;
 
 typedef MapCellState** MapCellsStates;
