@@ -12,17 +12,10 @@ typedef struct
     bool running;
 } Game;
 
-void draw_map_t(Map *map)
-{
-    printf("File: %s\n", map->map_file);
-    print_matrix((int **)map->cells, map->size.x, map->size.y);
-}
-
 void restart_game(Game *game)
 {
-    Map *map = &game->map;
-    unload_map(map);
-    load_map(map);
+    unload_map(&game->map);
+    load_map(&game->map);
 }
 
 MoveResult register_keys(Game *game, SDL_Event *e)
@@ -59,7 +52,6 @@ MoveResult register_keys(Game *game, SDL_Event *e)
                 break;
             }
 
-            // draw_map_t(map);
             if (mr == DIED)
             {
                 game->running = false;

@@ -179,14 +179,10 @@ void load_map(Map* map) {
       exit(1);
     }
     
-    int max_y = y;
-    map->size = (Vector){max_x, max_y};
+    map->size = (Vector){max_x, y};
     map->cells_length = cell_count;
 
-    Coordinate cell_coord;
-    MapCellState state;
-
-    calloc2(map->cells, max_x, max_y);
+    calloc2(map->cells, max_x, y);
     MapCell cell;
     for (int i = 0; i < cell_count; i++)
     {
@@ -341,4 +337,10 @@ MoveResult move_down(Map* map) {
 
 MoveResult move_left(Map* map) {
   return move(map, (Vector){-1, 0});
+}
+
+void draw_map_t(Map *map)
+{
+  printf("File: %s\n", map->map_file);
+  print_matrix((int **)map->cells, map->size.x, map->size.y);
 }
