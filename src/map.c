@@ -10,11 +10,11 @@
 #define INITIAL_LENGTH 3
 #define GROWTH_PER_APPLE 1
 
-Snake create_snake(int x, int y, int max_parts) {
+Snake create_snake(Coordinate pos, int max_parts) {
   Snake snake;
 
-  snake.pos = (Coordinate){x, y};
-  snake.direction = (Vector){0 ,0};
+  snake.pos = pos;
+  snake.direction = (Vector){0, 0};
   
   snake.length = 1;
   snake.pending_length = INITIAL_LENGTH - 1;
@@ -31,16 +31,16 @@ void delete_snake(Snake *snake) {
   free(snake->parts);
 }
 
-MapCellState get_cell_state(Map* map, Coordinate coord) {
-  return map->cells[coord.x][coord.y];
+MapCellState get_cell_state(Map* map, Coordinate pos) {
+  return map->cells[pos.x][pos.y];
 }
 
-void set_cell_state(Map* map, Coordinate coord, MapCellState state) {
-  map->cells[coord.x][coord.y] = state;
+void set_cell_state(Map* map, Coordinate pos, MapCellState state) {
+  map->cells[pos.x][pos.y] = state;
 }
 
-MapCell get_cell(Map* map, Coordinate coord) {
-  MapCell cell = {coord, get_cell_state(map, coord)};
+MapCell get_cell(Map* map, Coordinate pos) {
+  MapCell cell = {pos, get_cell_state(map, pos)};
   return cell;
 }
 
@@ -89,8 +89,8 @@ bool coord_in_map(Map* map, Coordinate coord) {
   return ((coord.x >= 0) && (coord.x < size.x) && (coord.y >= 0) && (coord.y < size.y));
 }
 
-SnakePart make_snake_part(Coordinate coord, int length) {
-  SnakePart part = {coord, ((length%2) == 0) ? BODY : BODY2};
+SnakePart make_snake_part(Coordinate pos, int length) {
+  SnakePart part = {pos, ((length%2) == 0) ? BODY : BODY2};
   return part;
 }
 
@@ -190,7 +190,7 @@ void load_map(Map* map) {
       map->cells[cell.pos.x][cell.pos.y] = cell.state;
     }
 
-    map->snake = create_snake(snake_x, snake_y, map->cells_length);
+    map->snake = create_snake((Coordinate){snake_x, snake_y}, map->cells_length);
     
     spawn_apple(map);
   } else {
@@ -222,7 +222,6 @@ void redraw_snake(Map* map) {
       for (int snake_part_index = 0; snake_part_index < snake->length; snake_part_index++)
       {
         SnakePart part = snake->parts[snake_part_index];
-        // printf("(%d, %d) %d\n", part.pos.x, part.pos.y, part.state);
         if (vector_eq(part.pos, pos))
         {
           set_cell_state(map, pos, part.state);
