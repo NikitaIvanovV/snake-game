@@ -5,7 +5,14 @@
 #include "render.h"
 #include "map.h"
 
-View* init_view(Map* map) {
+#define SDL_SCREEN_WIDTH 500
+#define SDL_SCREEN_HEIGHT 500
+#define SDL_SDL_WINDOWPOS_X SDL_WINDOWPOS_UNDEFINED
+#define SDL_SDL_WINDOWPOS_Y SDL_WINDOWPOS_UNDEFINED
+#define SDL_SDL_WINDOWPOS_X 0
+#define SDL_SDL_WINDOWPOS_Y 0
+
+View init_view() {
   SDL_DisplayMode displayMode;
 
   if ( SDL_Init(SDL_INIT_VIDEO) != 0 ) {
@@ -16,7 +23,7 @@ View* init_view(Map* map) {
   SDL_Surface* screen_surface = NULL;
   SDL_Window* window = NULL;
 
-  window = SDL_CreateWindow("Snake", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SDL_SCREEN_WIDTH, SDL_SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+  window = SDL_CreateWindow("Snake", SDL_SDL_WINDOWPOS_X, SDL_SDL_WINDOWPOS_Y, SDL_SCREEN_WIDTH, SDL_SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
   if (window == NULL) {
     printf("Error while creating a window\n");
@@ -25,11 +32,10 @@ View* init_view(Map* map) {
 
   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   
-  View* view = malloc(sizeof(View));
-  view->map = map;
-  view->surface = screen_surface;
-  view->window = window;
-  view->renderer = renderer;
+  View view;
+  view.surface = screen_surface;
+  view.window = window;
+  view.renderer = renderer;
   
   return view;
 }
@@ -62,9 +68,7 @@ void draw_rect(View* view, int x, int y, int w, int h) {
   SDL_RenderFillRect(view->renderer, &r);
 }
 
-void render_map(View* view) {
-  Map* map = view->map;
-  
+void render_map(View* view, Map* map) {
   int scale = (map->size.x < map->size.y) ? SDL_SCREEN_HEIGHT / map->size.y : SDL_SCREEN_WIDTH / map->size.x;
   
   MapCellState state;
@@ -104,5 +108,4 @@ void render_map(View* view) {
 void quit_view(View* view) {
   SDL_DestroyWindow(view->window);
   SDL_Quit();
-  free(view);
 }

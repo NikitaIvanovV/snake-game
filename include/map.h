@@ -41,13 +41,18 @@ typedef struct {
 typedef MapCellState** MapCellsStates;
 
 typedef struct {
+  const char *map_file;
   Vector size;
   int cells_length;
   MapCellsStates cells;
   Snake snake;
 } Map;
 
-void read_map_file(Map*, const char*);
+Map init_map(const char *map_file);
+
+void load_map(Map*);
+
+void unload_map(Map *);
 
 MoveResult move_up(Map*);
 

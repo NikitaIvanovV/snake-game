@@ -1,6 +1,8 @@
 #ifndef NIKITA_SG_VECTOR
 #define NIKITA_SG_VECTOR
 
+#include <stdbool.h>
+
 typedef struct
 {
     int x, y;

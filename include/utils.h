@@ -14,11 +14,19 @@
     _a < _b ? _a : _b; })
    
 #define calloc2(var, x, y) \
-  var = calloc(x, sizeof(*var)); \
-  for (int i = 0; i < x; i++) { \
-    var[i] = calloc(y, sizeof(var[0])); \
-  }
+  ({ var = calloc(x, sizeof(*var)); \
+    for (int i = 0; i < x; i++) { \
+      var[i] = calloc(y, sizeof(var[0])); \
+    } })
+
+#define free2(var, x) \
+  ({ for (int i = 0; i < x; i++) { \
+      free(var[i]); \
+    } \
+    free(var); })
 
 int rand_range(int lower, int upper);
+
+void print_matrix(int **array, int size_x, int size_y);
 
 #endif

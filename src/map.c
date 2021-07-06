@@ -10,8 +10,6 @@
 #define INITIAL_LENGTH 3
 #define GROWTH_PER_APPLE 1
 
-static int cell_count;
-
 Snake create_snake(int x, int y, int max_parts) {
   Snake snake;
 
@@ -29,6 +27,10 @@ Snake create_snake(int x, int y, int max_parts) {
   return snake;
 }
 
+void delete_snake(Snake *snake) {
+  free(snake->parts);
+}
+
 MapCellState get_cell_state(Map* map, Coordinate coord) {
   return map->cells[coord.x][coord.y];
 }
@@ -42,9 +44,17 @@ MapCell get_cell(Map* map, Coordinate coord) {
   return cell;
 }
 
-int get_free_cells(Map* map, MapCell* free_cells)
+Map init_map(const char *map_file)
+{
+  Map map;
+  map.map_file = (map_file != NULL) ? map_file : DEFAULT_MAP;
+  return map;
+}
+
+int get_free_cells(Map* map, MapCell* free_cells_buffer)
 {
   int free_cells_length = 0;
+  MapCell free_cell;
 
   for (int x = 0; x < map->size.x; x++)
   {
@@ -54,8 +64,8 @@ int get_free_cells(Map* map, MapCell* free_cells)
       MapCellState state = get_cell_state(map, pos);
       if (state == FREE)
       {
-        MapCell free_cell = {pos, state};
-        free_cells[free_cells_length++] = free_cell;
+        free_cell = (MapCell){pos, state};
+        free_cells_buffer[free_cells_length++] = free_cell;
       }
     }
   }
@@ -74,37 +84,34 @@ bool is_snake_in_cell(Map *map, Coordinate coord)
   return is_snake_state(cell_state);
 }
 
+bool coord_in_map(Map* map, Coordinate coord) {
+  Vector size = map->size;
+  return ((coord.x >= 0) && (coord.x < size.x) && (coord.y >= 0) && (coord.y < size.y));
+}
+
 SnakePart make_snake_part(Coordinate coord, int length) {
   SnakePart part = {coord, ((length%2) == 0) ? BODY : BODY2};
   return part;
 }
 
-MapCellsStates generate_map_cells(const int size_x, const int size_y) {
-  MapCellsStates map_cells;
-  calloc2(map_cells, size_x, size_y);
-  
-  for (size_t x = 0; x < size_x; x++) {
-    for (size_t y = 0; y < size_y; y++) {
-      MapCellState cell;
-      map_cells[x][y] = cell;
-    }
-  }
-  
-  return map_cells;
+void spawn_apple(Map *map)
+{
+  MapCell free_cells[map->cells_length];
+  int free_cells_length = get_free_cells(map, free_cells);
+
+  MapCell random_cell;
+  int random_cell_index = rand_range(0, free_cells_length);
+  random_cell = free_cells[random_cell_index];
+
+  set_cell_state(map, random_cell.pos, APPLE);
 }
 
-void process_map_symbol(MapCell* cells, char character, int x, int y, int* snake_x, int* snake_y) {
-  MapCell cell = {{x, y}, FREE};
+void process_map_symbol(MapCell *cells, int *cell_count, char character, int x, int y, int *snake_x, int *snake_y) {
+  MapCell cell;
+  cell.pos = (Coordinate){x, y};
+
   switch (character)
   {
-  case '0':
-    cell.state = WALL;
-    cells[cell_count++] = cell;
-    break;
-  case 'a':
-    cell.state = APPLE;
-    cells[cell_count++] = cell;
-    break;
   case 'x':
     if (*snake_x >= 0)
     {
@@ -112,12 +119,21 @@ void process_map_symbol(MapCell* cells, char character, int x, int y, int* snake
       exit(1);
     }
     cell.state = HEAD;
-    cells[cell_count++] = cell;
+    cells[(*cell_count)++] = cell;
     *snake_x = x;
     *snake_y = y;
     break;
   case ' ':
-    cells[cell_count++] = cell;
+    cell.state = FREE;
+    cells[(*cell_count)++] = cell;
+    break;
+  case '0':
+    cell.state = WALL;
+    cells[(*cell_count)++] = cell;
+    break;
+  case 'a':
+    cell.state = APPLE;
+    cells[(*cell_count)++] = cell;
     break;
   default:
     printf("Error: unknown symbol: \"%c\"\n", character);
@@ -125,15 +141,18 @@ void process_map_symbol(MapCell* cells, char character, int x, int y, int* snake
   }
 }
 
-void read_map_file(Map* map, const char* filename) {
+void load_map(Map* map) {
+  const char *filename = map->map_file;
+
+  int cell_count = 0;
+
   FILE* file = fopen(filename, "r");
 
   if (file != NULL) {
     char character;
     int x = 0, y = 0, max_x = 0;
     
-    MapCell* cells = calloc(MAX_CELLS, sizeof(MapCell));
-    cell_count = 0;
+    MapCell map_cells[MAX_CELLS];
     
     int snake_x = -1, snake_y;
 
@@ -148,48 +167,45 @@ void read_map_file(Map* map, const char* filename) {
         x = 0;
         y++;
       } else {
-        process_map_symbol(cells, character, x, y, &snake_x, &snake_y);
+        process_map_symbol(map_cells, &cell_count, character, x, y, &snake_x, &snake_y);
         x++;
       }
     }
 
     fclose(file);
     
-    if (snake_x < 0) {
+    if (snake_x == -1) {
       printf("Error: no snakes found\n");
       exit(1);
     }
     
     int max_y = y;
-    map->size.x = max_x;
-    map->size.y = max_y;
-    map->cells_length = max_x * max_y;
-    
-    MapCellsStates map_cells = generate_map_cells(max_x, max_y);
-    int state;
+    map->size = (Vector){max_x, max_y};
+    map->cells_length = cell_count;
+
     Coordinate cell_coord;
-    
-    for (x = 0; x < max_x; x++) {
-      for (y = 0; y < max_y; y++) {
-        state = FREE;
-        for (size_t i = 0; i < cell_count; i++) {
-          cell_coord = cells[i].pos;
-          if (cell_coord.x == x && cell_coord.y == y) {
-            state = cells[i].state;
-            break;
-          }
-        }
-        map_cells[x][y] = state;
-      }
+    MapCellState state;
+
+    calloc2(map->cells, max_x, max_y);
+    MapCell cell;
+    for (int i = 0; i < cell_count; i++)
+    {
+      cell = map_cells[i];
+      map->cells[cell.pos.x][cell.pos.y] = cell.state;
     }
 
-    map->cells = map_cells;
     map->snake = create_snake(snake_x, snake_y, map->cells_length);
-
+    
+    spawn_apple(map);
   } else {
     printf("File not found: \"%s\"\n", filename);
     exit(1);
   }
+}
+
+void unload_map(Map* map) {
+  free2(map->cells, map->size.x);
+  delete_snake(&map->snake);
 }
 
 void redraw_snake(Map* map) {
@@ -257,19 +273,6 @@ void grow_snake(Snake *snake)
   snake->pending_length += GROWTH_PER_APPLE;
 }
 
-void spawn_apple(Map *map)
-{
-  MapCell free_cells[map->cells_length];
-  int free_cells_length = get_free_cells(map, free_cells);
-
-  MapCell random_cell;
-  int random_cell_index = rand_range(0, free_cells_length);
-  random_cell = free_cells[random_cell_index];
-
-  set_cell_state(map, random_cell.pos, APPLE);
-  printf("%d\n", rand_range(0, free_cells_length));
-}
-
 MoveResult move(Map* map, Vector direction) {
   if (direction.x * direction.y != 0) {
     printf("Error: diagonal movement is not allowed\n");
@@ -290,7 +293,13 @@ MoveResult move(Map* map, Vector direction) {
 
   Coordinate pos = snake->pos;
   Coordinate new_pos = vector_sum(pos, direction);
-  
+
+  if (! coord_in_map(map, new_pos))
+  {
+    result = DIED;
+    return result;
+  }
+
   MapCellState new_cell = get_cell_state(map, new_pos);
 
   switch (new_cell) {
@@ -311,7 +320,7 @@ MoveResult move(Map* map, Vector direction) {
       break;
   }
   
-  printf("Length: %d; Pending length: %d\n", snake->length, snake->pending_length);
+  printf("Length: %d\n", snake->length);
   printf("Snake pos: (%d, %d)\n", snake->pos.x, snake->pos.y);
   update_map(map, new_pos);
   
