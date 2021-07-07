@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "core.h"
 #include "map.h"
 #include "utils.h"
 #include "vector.h"
@@ -291,8 +292,35 @@ MoveResult move(Map* map, Vector direction) {
 
   if (! coord_in_map(map, new_pos))
   {
+    if (WALL_MODE)
+    {
     result = DIED;
     return result;
+  }
+    else
+    {
+      if (vector_eq(snake->direction, (Vector){1, 0}))
+      {
+        new_pos.x = 0;
+      }
+      else if (vector_eq(snake->direction, (Vector){-1, 0}))
+      {
+        new_pos.x = map->size.x - 1;
+      }
+      else if (vector_eq(snake->direction, (Vector){0, 1}))
+      {
+        new_pos.y = 0;
+      }
+      else if (vector_eq(snake->direction, (Vector){0, -1}))
+      {
+        new_pos.y = map->size.y - 1;
+      }
+      else
+      {
+        printf("Error: invalid snake direction: (%d, %d)\n", snake->direction.x, snake->direction.y);
+      }
+      
+    }
   }
 
   MapCellState new_cell = get_cell_state(map, new_pos);
