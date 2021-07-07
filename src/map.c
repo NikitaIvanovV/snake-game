@@ -113,17 +113,6 @@ void process_map_symbol(MapCell *cells, int *cell_count, char character, int x, 
 
   switch (character)
   {
-  case 'x':
-    if (*snake_x >= 0)
-    {
-      printf("Error: two snakes found\n");
-      exit(1);
-    }
-    cell.state = HEAD;
-    cells[(*cell_count)++] = cell;
-    *snake_x = x;
-    *snake_y = y;
-    break;
   case ' ':
     cell.state = FREE;
     cells[(*cell_count)++] = cell;
@@ -135,6 +124,17 @@ void process_map_symbol(MapCell *cells, int *cell_count, char character, int x, 
   case 'a':
     cell.state = APPLE;
     cells[(*cell_count)++] = cell;
+    break;
+  case 'x':
+    if (*snake_x >= 0)
+    {
+      printf("Error: two snakes found\n");
+      exit(1);
+    }
+    cell.state = HEAD;
+    cells[(*cell_count)++] = cell;
+    *snake_x = x;
+    *snake_y = y;
     break;
   default:
     printf("Error: unknown symbol: \"%c\"\n", character);
@@ -269,7 +269,7 @@ void grow_snake(Snake *snake)
   snake->pending_length += GROWTH_PER_APPLE;
 }
 
-MoveResult move(Map* map, Vector direction) {
+MoveResult move_snake(Map* map, Vector direction) {
   if (direction.x * direction.y != 0) {
     printf("Error: diagonal movement is not allowed\n");
     exit(1);
@@ -294,9 +294,9 @@ MoveResult move(Map* map, Vector direction) {
   {
     if (WALL_MODE)
     {
-    result = DIED;
-    return result;
-  }
+      result = DIED;
+      return result;
+    }
     else
     {
       if (vector_eq(snake->direction, (Vector){1, 0}))
@@ -351,19 +351,19 @@ MoveResult move(Map* map, Vector direction) {
 }
 
 MoveResult move_up(Map* map) {
-  return move(map, (Vector){0, 1});
+  return move_snake(map, (Vector){0, 1});
 }
 
 MoveResult move_right(Map* map) {
-  return move(map, (Vector){1, 0});
+  return move_snake(map, (Vector){1, 0});
 }
 
 MoveResult move_down(Map* map) {
-  return move(map, (Vector){0, -1});
+  return move_snake(map, (Vector){0, -1});
 }
 
 MoveResult move_left(Map* map) {
-  return move(map, (Vector){-1, 0});
+  return move_snake(map, (Vector){-1, 0});
 }
 
 void draw_map_t(Map *map)

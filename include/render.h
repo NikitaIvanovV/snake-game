@@ -9,13 +9,14 @@ typedef struct {
   SDL_Surface* surface;
   SDL_Window* window;
   SDL_Renderer* renderer;
+  int scale;
 } View;
 
-View init_view();
+View init_view(Map* map);
 
 void clear_screen(View* view, int r, int g, int b);
 
-void draw(View*);
+void display(View*);
 
 void set_color(View* view, int r, int g, int b);
 

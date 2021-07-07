@@ -10,8 +10,9 @@ typedef struct
 
 Vector vector_sum(Vector x, Vector y);
 
+Vector vector_scale(Vector vec, int num);
+
 bool vector_eq(Vector x, Vector y);
 
-Vector vector_scale(Vector vec, int num);
 
 #endif

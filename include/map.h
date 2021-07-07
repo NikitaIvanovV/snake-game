@@ -62,6 +62,8 @@ MoveResult move_down(Map*);
 
 MoveResult move_left(Map*);
 
+MoveResult move_snake(Map *, Vector direction);
+
 void draw_map_t(Map*);
 
 #endif
