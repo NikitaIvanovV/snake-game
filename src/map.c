@@ -347,9 +347,11 @@ MoveResult move_snake(Map* map, Vector direction) {
       result = DIED;
       break;
   }
-  
+
+  #ifdef DEBUG
   printf("Length: %d\n", snake->length);
   printf("Snake pos: (%d, %d)\n", snake->pos.x, snake->pos.y);
+  #endif
   update_map(map, new_pos);
   
   return result;
