@@ -28,6 +28,11 @@ Snake create_snake(Coordinate pos, int max_parts) {
   return snake;
 }
 
+bool is_valid_snake_direction(Snake *snake, Vector direction)
+{
+  return (! vector_eq(direction, vector_scale(snake->direction, -1)));
+}
+
 void delete_snake(Snake *snake) {
   free(snake->parts);
 }
@@ -276,10 +281,10 @@ MoveResult move_snake(Map* map, Vector direction) {
   }
 
   MoveResult result;
-  Snake* snake = &(map->snake);
+  Snake* snake = &map->snake;
 
   // Disallow moving back
-  if (vector_eq(direction, vector_scale(snake->direction, -1)))
+  if (! is_valid_snake_direction(snake, direction))
   {
     result = IGNORED;
     return result;
