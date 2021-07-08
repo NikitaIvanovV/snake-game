@@ -175,5 +175,5 @@ void run_game(const char *map_file)
         game.frame_in_second = (game.frame_in_second + 1) % game.frame_rate;
     }
 
-    clean_game(&game);
+    close_game(&game);
 }

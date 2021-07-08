@@ -5,18 +5,21 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wall -g -Linclude")
 
 include_directories(AFTER include)
 
+add_library(core OBJECT src/core.c)
+add_library(utils OBJECT src/utils.c)
+add_library(map OBJECT src/map.c)
+add_library(render OBJECT src/render.c)
+add_library(vector OBJECT src/vector.c)
+
+add_library(snake STATIC)
+
+target_link_libraries(snake core)
+target_link_libraries(snake utils)
+target_link_libraries(snake map)
+target_link_libraries(snake render)
+target_link_libraries(snake SDL2)
+target_link_libraries(snake vector)
+
 add_executable(main src/main.c)
-add_library(core src/core.c)
-add_library(utils src/utils.c)
-add_library(map src/map.c)
-add_library(render src/render.c)
-add_library(vector src/vector.c)
 
-target_link_libraries(main core)
-target_link_libraries(main utils)
-target_link_libraries(main map)
-target_link_libraries(main render)
-target_link_libraries(main SDL2)
-
-target_link_libraries(map utils)
-target_link_libraries(map vector)
+target_link_libraries(main snake)
