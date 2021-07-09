@@ -1,5 +1,5 @@
-#ifndef NIKITA_SG_CORE
-#define NIKITA_SG_CORE
+#ifndef NIKITA_SG_CORE_H
+#define NIKITA_SG_CORE_H
 
 #include <stdbool.h>
 #include "render.h"

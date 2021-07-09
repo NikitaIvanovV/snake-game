@@ -1,5 +1,5 @@
-#ifndef NIKITA_SG_MAP
-#define NIKITA_SG_MAP
+#ifndef NIKITA_SG_MAP_H
+#define NIKITA_SG_MAP_H
 
 #include "vector.h"
 

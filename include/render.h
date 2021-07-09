@@ -1,5 +1,5 @@
-#ifndef NIKITA_SG_RENDER
-#define NIKITA_SG_RENDER
+#ifndef NIKITA_SG_RENDER_H
+#define NIKITA_SG_RENDER_H
 
 #include <SDL2/SDL.h>
 

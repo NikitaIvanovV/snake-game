@@ -1,5 +1,5 @@
-#ifndef NIKITA_SG_UTILS
-#define NIKITA_SG_UTILS
+#ifndef NIKITA_SG_UTILS_H
+#define NIKITA_SG_UTILS_H
 
 #include <stdlib.h>
 
