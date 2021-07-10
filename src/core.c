@@ -6,7 +6,13 @@
 #include "render.h"
 
 #define AUTOMOVE
-#define TIMES_TO_MOVE_PER_SECOND 10
+#define TIMES_TO_MOVE_PER_SECOND (10)
+
+typedef enum
+{
+    GAME_STATE_GAME,
+    GAME_STATE_PAUSE,
+} GameState;
 
 typedef struct
 {
@@ -17,15 +23,19 @@ typedef struct
     unsigned int frame_rate;
     unsigned int frame_in_second;
     bool running;
+    GameState state;
 } Game;
 
 enum Event
 {
     EVENT_NONE = 1,
     EVENT_SNAKE_DIRECTION_CHANGED,
+    EVENT_ESCAPE,
     EVENT_RESTART,
     EVENT_EXIT
 };
+
+static Game game;
 
 void init_game(Game *game, const char *map_file)
 {
@@ -37,6 +47,8 @@ void init_game(Game *game, const char *map_file)
     game->frame_in_second = 0;
 
     game->running = true;
+
+    game->state = GAME_STATE_GAME;
 }
 
 Game create_game(const char *map_file)
@@ -101,6 +113,9 @@ enum Event handle_events(Game *game, Vector *new_direction)
             case SDLK_r:
                 event = EVENT_RESTART;
                 break;
+            case SDLK_ESCAPE:
+                event = EVENT_ESCAPE;
+                break;
             }
         }
         // Prevent event from overwriting if there's another event in the poll
@@ -118,7 +133,7 @@ MoveResult move(Game *game, Vector dir)
 
 void update(Game *game)
 {
-    Vector *new_direction;
+    Vector new_direction[1];
     enum Event event = handle_events(game, new_direction);
 
     if (event != EVENT_NONE)
@@ -136,6 +151,10 @@ void update(Game *game)
         {
             game->running = false;
         }
+        else if (event == EVENT_ESCAPE)
+        {
+            game->state = (game->state == GAME_STATE_GAME) ? GAME_STATE_PAUSE : GAME_STATE_GAME;
+        }
         else
         {
             printf("Error: invalid event type: %d\n", event);
@@ -143,6 +162,8 @@ void update(Game *game)
         }
     }
 
+    if (game->state == GAME_STATE_GAME)
+    {
     bool move =
         #ifdef AUTOMOVE
         (game->frame_in_second % (game->frame_rate / TIMES_TO_MOVE_PER_SECOND)) == 0;
@@ -157,6 +178,12 @@ void update(Game *game)
             printf("You died.\nLength: %d\n", game->map.snake.length);
         }
     }
+}
+    else if ((game->state == GAME_STATE_PAUSE))
+    {
+        
+    }
+    
 }
 
 void run_game(const char *map_file)
