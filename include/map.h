@@ -64,14 +64,6 @@ void load_map(Map *);
 
 void unload_map(Map *);
 
-MoveResult move_up(Map *);
-
-MoveResult move_right(Map *);
-
-MoveResult move_down(Map *);
-
-MoveResult move_left(Map *);
-
 MoveResult move_snake(Map *, Vector direction);
 
 void draw_map_t(Map *);

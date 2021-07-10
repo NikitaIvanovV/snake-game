@@ -364,26 +364,6 @@ MoveResult move_snake(Map *map, Vector direction)
   return result;
 }
 
-MoveResult move_up(Map *map)
-{
-  return move_snake(map, (Vector){0, 1});
-}
-
-MoveResult move_right(Map *map)
-{
-  return move_snake(map, (Vector){1, 0});
-}
-
-MoveResult move_down(Map *map)
-{
-  return move_snake(map, (Vector){0, -1});
-}
-
-MoveResult move_left(Map *map)
-{
-  return move_snake(map, (Vector){-1, 0});
-}
-
 void draw_map_t(Map *map)
 {
   printf("File: %s\n", map->map_file);
