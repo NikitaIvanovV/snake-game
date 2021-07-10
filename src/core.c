@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
+
 #include "map.h"
 #include "utils.h"
 #include "render.h"
@@ -164,21 +165,21 @@ void update(Game *game)
 
     if (game->state == GAME_STATE_GAME)
     {
-    bool move =
+        bool move =
         #ifdef AUTOMOVE
         (game->frame_in_second % (game->frame_rate / TIMES_TO_MOVE_PER_SECOND)) == 0;
         #else
         event == EVENT_SNAKE_DIRECTION_CHANGED;
         #endif
-    if (move)
-    {
-        if (move_snake(&game->map, game->snake_direction) == DIED)
+        if (move)
         {
-            game->running = false;
-            printf("You died.\nLength: %d\n", game->map.snake.length);
+            if (move_snake(&game->map, game->snake_direction) == DIED)
+            {
+                game->running = false;
+                printf("You died.\nLength: %d\n", game->map.snake.length);
+            }
         }
     }
-}
     else if ((game->state == GAME_STATE_PAUSE))
     {
         
@@ -186,9 +187,16 @@ void update(Game *game)
     
 }
 
+void exit_game()
+{
+    close_game(&game);
+}
+
 void run_game(const char *map_file)
 {
-    Game game = create_game(map_file);
+    atexit(exit_game);
+
+    game = create_game(map_file);
 
     while (game.running)
     {
@@ -199,6 +207,4 @@ void run_game(const char *map_file)
         SDL_Delay(1000.0 / game.frame_rate); // Absolutely improper way to make a game run at 60 FPS
         game.frame_in_second = (game.frame_in_second + 1) % game.frame_rate;
     }
-
-    close_game(&game);
 }
