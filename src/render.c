@@ -75,39 +75,62 @@ void draw_rect(View *view, int x, int y, int w, int h)
   SDL_RenderFillRect(view->renderer, &r);
 }
 
+void draw_map_element(View *view, int x, int y, MapCellState state)
+{
+  switch (state)
+  {
+  case FREE:
+    set_color(view, 0, 0, 0);
+    break;
+  case WALL:
+    set_color(view, 255, 255, 255);
+    break;
+  case BODY1:
+    set_color(view, 255, 200, 00);
+    break;
+  case BODY2:
+    set_color(view, 255, 160, 00);
+    break;
+  case HEAD:
+    set_color(view, 255, 65, 0);
+    break;
+  case APPLE:
+    set_color(view, 255, 0, 0);
+    break;
+  default:
+    printf("Error: uknown cell state: %d\n", state);
+    exit(1);
+  }
+
+  draw_rect(view, x * view->scale, y * view->scale, view->scale, view->scale);
+}
+
 void render_map(View *view, Map *map)
 {
+  MapCellState state;
   for (int y = 0; y < map->size.y; y++)
   {
     for (int x = 0; x < map->size.x; x++)
     {
-      switch (map->cells[x][y])
-      {
-      case FREE:
-        set_color(view, 0, 0, 0);
-        break;
-      case WALL:
-        set_color(view, 255, 255, 255);
-        break;
-      case HEAD:
-        set_color(view, 255, 65, 0);
-        break;
-      case BODY:
-        set_color(view, 255, 200, 00);
-        break;
-      case BODY2:
-        set_color(view, 255, 160, 00);
-        break;
-      case APPLE:
-        set_color(view, 255, 0, 0);
-        break;
-      default:
-        printf("Error: uknown cell state: %d\n", map->cells[x][y]);
-        exit(1);
-      }
+      state = map->cells[x][y];
+      if (is_snake_state(state))
+        state = FREE; // Don't render snake for now; do it later
 
-      draw_rect(view, x * view->scale, y * view->scale, view->scale, view->scale);
+      draw_map_element(view, x, y, state);
     }
+  }
+
+  Snake *snake = &map->snake;
+  SnakePart part;
+  for (int i = 0; i < snake->length; i++)
+  {
+    part = snake->parts[i];
+    if (i == 0)
+      state = HEAD;
+    else
+      state = (i % 2 == 0) ? BODY1 : BODY2;
+
+    draw_map_element(view, part.pos.x, part.pos.y, state);
   }
 }
 
