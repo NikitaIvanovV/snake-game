@@ -55,13 +55,6 @@ MapCell get_cell(Map *map, Coordinate pos)
   return cell;
 }
 
-Map init_map(const char *map_file)
-{
-  Map map;
-  map.map_file = (map_file != NULL) ? map_file : DEFAULT_MAP;
-  return map;
-}
-
 int get_free_cells(Map *map, MapCell *free_cells_buffer)
 {
   int free_cells_length = 0;
@@ -226,6 +219,19 @@ void unload_map(Map *map)
 {
   free2(map->cells, map->size.x);
   delete_snake(&map->snake);
+}
+
+Map init_map(const char *map_file)
+{
+  Map map;
+  map.map_file = (map_file != NULL) ? map_file : DEFAULT_MAP;
+  load_map(&map);
+  return map;
+}
+
+void clear_map(Map *map)
+{
+  unload_map(map);
 }
 
 void redraw_snake(Map *map)

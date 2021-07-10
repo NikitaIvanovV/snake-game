@@ -60,9 +60,7 @@ bool is_valid_snake_direction(Snake *snake, Vector direction);
 
 Map init_map(const char *map_file);
 
-void load_map(Map *);
-
-void unload_map(Map *);
+void clear_map(Map *map);
 
 MoveResult move_snake(Map *, Vector direction);
 

@@ -30,7 +30,6 @@ enum Event
 void init_game(Game *game, const char *map_file)
 {
     game->map = init_map(map_file);
-    load_map(&game->map);
 
     game->snake_direction = (Vector){0, 0};
 
@@ -51,21 +50,21 @@ Game create_game(const char *map_file)
     return game;
 }
 
-void clean_game(Game *game)
+void clear_game(Game *game)
 {
-    unload_map(&game->map);
+    clear_map(&game->map);
 }
 
 void close_game(Game *game)
 {
-    clean_game(game);
+    clear_game(game);
     quit_view(&game->view);
 }
 
 void restart_game(Game *game)
 {
     const char* map_file = game->map.map_file;
-    clean_game(game);
+    clear_game(game);
     init_game(game, map_file);
 }
 
@@ -102,7 +101,7 @@ enum Event handle_events(Game *game, Vector *new_direction)
             case SDLK_r:
                 event = EVENT_RESTART;
                 break;
-            }    
+            }
         }
         // Prevent event from overwriting if there's another event in the poll
         if (event == EVENT_EXIT)
@@ -158,7 +157,6 @@ void update(Game *game)
             printf("You died.\nLength: %d\n", game->map.snake.length);
         }
     }
-    
 }
 
 void run_game(const char *map_file)
